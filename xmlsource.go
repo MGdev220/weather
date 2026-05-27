@@ -1,1 +1,4 @@
-package weather
+package main
+
+type Stations struct {
+}
