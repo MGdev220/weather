@@ -102,6 +102,8 @@ func main() {
 
 	mux.HandleFunc("GET /stations/{country}", app.getStation)
 
+	mux.HandleFunc("POST /stations", app.createStation)
+
 	http.ListenAndServe(":8080", mux)
 
 	log.Println("Serveur démarré sur http://localhost:8080...")
