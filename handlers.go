@@ -25,3 +25,17 @@ func (a *App) listStations(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusOK, stations)
 }
+
+func (a *App) getStation(w http.ResponseWriter, r *http.Request) {
+
+	country := r.PathValue("country")
+
+	station, exists := a.store.Get(country)
+
+	if !exists {
+		writeError(w, http.StatusNotFound, "Station introuvable")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, station)
+}
