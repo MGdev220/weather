@@ -39,3 +39,24 @@ func (a *App) getStation(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusOK, station)
 }
+
+// createStation gère la route POST /stations
+func (a *App) createStation(w http.ResponseWriter, r *http.Request) {
+	var station Station
+
+	err := json.NewDecoder(r.Body).Decode(&station)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "JSON invalide")
+		return
+	}
+
+
+	if a.store.Has(station.Country) {
+		writeError(w, http.StatusConflict, "Cette station existe deja")
+		return
+	}
+
+	a.store.Put(station)
+
+	writeJSON(w, http.StatusCreated, station)
+}
