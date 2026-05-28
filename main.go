@@ -88,13 +88,17 @@ func main() {
 
 	log.Printf("bootstrap : %d stations chargées", len(stations))
 
-	_ = &Server{store: store}
+	app := &App{store: store}
+
+	_ = &App{store: store}
 
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "ok")
 	})
+
+	mux.HandleFunc("GET /stations", app.listStations)
 
 	http.ListenAndServe(":8080", mux)
 
