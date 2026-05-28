@@ -34,7 +34,6 @@ func main() {
 		obsXml := len(xmlStations[0].Observation)
 		fmt.Printf("Total observations JSON : %d | XML : %d\n", obsJson, obsXml)
 
-		// Comparaison de la première température
 		if obsJson > 0 && obsXml > 0 {
 			tempJson := stations[0].Observation[0].Temperature
 			tempXml := xmlStations[0].Observation[0].Temperature
@@ -44,4 +43,42 @@ func main() {
 	} else {
 		fmt.Println("Erreur : Le nombre de stations est différent entre JSON et XML.")
 	}
+
+	// 2. Calcul du nombre total d'observations
+	countObs := func(stations []Station) int {
+		total := 0
+		for _, s := range stations {
+			total += len(s.Observation)
+		}
+		return total
+	}
+	obsJson := countObs(stations)
+	obsXml := countObs(xmlStations)
+
+	// 3. Affichage JSON / XML et Cohérence
+	fmt.Printf("JSON : %d stations, %d observations\n", len(stations), obsJson)
+	fmt.Printf("XML  : %d stations, %d observations\n", len(xmlStations), obsXml)
+
+	if len(stations) == len(xmlStations) && obsJson == obsXml {
+		fmt.Println("Cohérence : OK\n")
+	} else {
+		fmt.Println("Cohérence : ÉCHEC\n")
+	}
+
+	windiestStation, maxGust := MaxWindGust(stations)
+
+	fmt.Printf("Station la plus ventée : %s (%.1f km/h)\n", windiestStation.Country, maxGust)
+
+	var bordeaux Station
+	for _, s := range stations {
+		if s.Country == "FR-BOR-001" {
+			bordeaux = s
+			break
+		}
+	}
+	avgTemp := AvgTemperature(bordeaux)
+	fmt.Printf("Temp. moyenne Bordeaux Mérignac : %.1f °C\n", avgTemp)
+
+	counts := CountByCountry(stations)
+	fmt.Printf("Stations par pays : %v\n", counts)
 }
