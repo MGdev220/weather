@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 )
 
 func main() {
@@ -44,7 +45,6 @@ func main() {
 		fmt.Println("Erreur : Le nombre de stations est différent entre JSON et XML.")
 	}
 
-	// 2. Calcul du nombre total d'observations
 	countObs := func(stations []Station) int {
 		total := 0
 		for _, s := range stations {
@@ -55,14 +55,13 @@ func main() {
 	obsJson := countObs(stations)
 	obsXml := countObs(xmlStations)
 
-	// 3. Affichage JSON / XML et Cohérence
 	fmt.Printf("JSON : %d stations, %d observations\n", len(stations), obsJson)
 	fmt.Printf("XML  : %d stations, %d observations\n", len(xmlStations), obsXml)
 
 	if len(stations) == len(xmlStations) && obsJson == obsXml {
 		fmt.Println("Cohérence : OK\n")
 	} else {
-		fmt.Println("Cohérence : ÉCHEC\n")
+		fmt.Println("Cohérence : ECHEC\n")
 	}
 
 	windiestStation, maxGust := MaxWindGust(stations)
@@ -81,4 +80,20 @@ func main() {
 
 	counts := CountByCountry(stations)
 	fmt.Printf("Stations par pays : %v\n", counts)
+
+	store, err := NewStore("weather_data.json")
+	if err != nil {
+		log.Fatalf("Erreur au chargement des données JSON : %v", err)
+	}
+
+	_ = &Server{store: store}
+
+	mux := http.NewServeMux()
+
+	log.Println("Serveur démarré sur http://localhost:8080...")
+
+	if err := http.ListenAndServe(":8080", mux); err != nil {
+		log.Fatalf("Erreur  du serveur : %v", err)
+	}
+
 }
