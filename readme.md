@@ -15,4 +15,35 @@ Avant de modéliser les données en Go, voici l'analyse des deux formats sources
 | **Vent**                 | Objet `wind` imbriqué avec `speed_kmh` (float) et `direction_deg` (int).                | Attributs `speed` et `direction` sur l'élément enfant `<wind>` parent station.                                |
 | **Notes (optionnelles)** | Champ `notes` en String dans l'observation (peut être `null`).                          | Élément `<note>` qui contient le texte, mais qui est totalement omis s'il n'y a pas de note. Dasn observation |
 
-## Description des fichiers principal qui charge les deux sources, vérifie leur cohérence et affiche les résultats des requêtes.
+# API REST Météo 
+
+Ce projet implémente une API REST en Go  permettant de gérer et consulter des données de stations météorologiques.
+
+##  Comment lancer le serveur
+
+Pour démarrer l'API, placez-vous à la racine du projet et exécutez :
+\`\`\`bash
+go run .
+\`\`\`
+Le serveur démarrera sur le port 8080 : \`http://localhost:8080\`
+
+## Les routes de l'API et statuts attendus
+
+1. **\`GET /health\`** : Vérifie l'état du serveur (**200 OK**)
+2. **\`GET /stations\`** : Liste toutes les stations (**200 OK**)
+3. **\`GET /stations/{id}\`** : Récupère une station spécifique (**200 OK**, **404 Not Found**)
+4. **\`POST /stations\`** : Crée une nouvelle station (**201 Created**, **400 Bad Request**, **409 Conflict**)
+5. **\`PUT /stations/{id}\`** : Met à jour ou crée une station (**200 OK**, **201 Created**)
+6. **\`DELETE /stations/{id}\`** : Supprime une station (**204 No Content**, **404 Not Found**)
+7. **\`GET /stations/{id}/observations\`** : Liste les observations d'une station (**200 OK**, **404 Not Found**)
+
+*(Toutes les erreurs sont renvoyées sous un format JSON normalisé avec un code interne).*
+
+## Tests et Validation
+
+Les tests de validation ont été effectués à l'aide de la collection Postman fournie pour le TP : EFREI Golang J3 — API REST météo.
+
+### Résultat du Runner Postman  :
+![Résultat Postman Runner](resultat/cap1.png)
+![Résultat Postman Runner](resultat/cap2.png)
+![Résultat Postman Runner](resultat/cap2.png)
