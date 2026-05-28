@@ -1,13 +1,41 @@
 package main
 
 type Store struct {
-	Stations []Station
+	stations map[string]Station
 }
 
-func NewStore(filepath string) (*Store, error) {
-	stations, err := LoadFromJSON(filepath)
-	if err != nil {
-		return nil, err
+func NewStore() *Store {
+	return &Store{
+		stations: make(map[string]Station),
 	}
-	return &Store{Stations: stations}, nil
+}
+
+func (s *Store) Put(st Station) {
+	s.stations[st.Country] = st
+}
+
+func (s *Store) Has(id string) bool {
+	_, exists := s.stations[id]
+	return exists
+}
+
+func (s *Store) Get(id string) (Station, bool) {
+	station, exists := s.stations[id]
+	return station, exists
+}
+
+func (s *Store) Delete(id string) bool {
+	if s.Has(id) {
+		delete(s.stations, id)
+		return true
+	}
+	return false
+}
+
+func (s *Store) All() []Station {
+	var all []Station
+	for _, st := range s.stations {
+		all = append(all, st)
+	}
+	return all
 }

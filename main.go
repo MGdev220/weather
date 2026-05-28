@@ -81,10 +81,12 @@ func main() {
 	counts := CountByCountry(stations)
 	fmt.Printf("Stations par pays : %v\n", counts)
 
-	store, err := NewStore("weather_data.json")
-	if err != nil {
-		log.Fatalf("Erreur au chargement des données JSON : %v", err)
+	store := NewStore()
+	for _, s := range stations {
+		store.Put(s)
 	}
+
+	log.Printf("bootstrap : %d stations chargées", len(stations))
 
 	_ = &Server{store: store}
 
