@@ -30,6 +30,7 @@ type jsonRoot struct {
 }
 
 type jsonStation struct {
+	ID           string            `json:"id"`
 	Country      string            `json:"country"`
 	Altitude     int               `json:"altitude_m"`
 	Location     jsonLocation      `json:"location"`
@@ -83,6 +84,7 @@ func (js *jsonStation) toModel() Station {
 	}
 
 	return Station{
+		ID:      js.ID,
 		Country: isoCode,
 		Location: Location{
 			Latitude:  js.Location.Latitude,

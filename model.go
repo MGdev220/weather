@@ -1,6 +1,7 @@
 package main
 
 type Station struct {
+	ID          string        `json:"id"`
 	Country     string        `json:"country"`
 	Location    Location      `json:"location"`
 	DeviceModel string        `json:"device_model"`

@@ -11,7 +11,7 @@ func NewStore() *Store {
 }
 
 func (s *Store) Put(st Station) {
-	s.stations[st.Country] = st
+	s.stations[st.ID] = st
 }
 
 func (s *Store) Has(id string) bool {

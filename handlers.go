@@ -9,14 +9,19 @@ type App struct {
 	store *Store
 }
 
+type ErrorResponse struct {
+	Error string `json:"error"`
+	Code  string `json:"code,omitempty"`
+}
+
 func writeJSON(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(v)
 }
 
-func writeError(w http.ResponseWriter, status int, msg string) {
-	writeJSON(w, status, map[string]string{"error": msg})
+func writeError(w http.ResponseWriter, status int, code, msg string) {
+	writeJSON(w, status, ErrorResponse{Error: msg, Code: code})
 }
 
 func (a *App) listStations(w http.ResponseWriter, r *http.Request) {
@@ -28,12 +33,12 @@ func (a *App) listStations(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) getStation(w http.ResponseWriter, r *http.Request) {
 
-	country := r.PathValue("country")
+	id := r.PathValue("id")
 
-	station, exists := a.store.Get(country)
+	station, exists := a.store.Get(id)
 
 	if !exists {
-		writeError(w, http.StatusNotFound, "Station introuvable")
+		writeError(w, http.StatusNotFound, "NOT_FOUND", "Station introuvable")
 		return
 	}
 
@@ -45,12 +50,12 @@ func (a *App) createStation(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&station)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "JSON invalide")
+		writeError(w, http.StatusBadRequest, "BAD_JSON", "JSON invalide")
 		return
 	}
 
-	if a.store.Has(station.Country) {
-		writeError(w, http.StatusConflict, "Cette station existe deja")
+	if a.store.Has(station.ID) {
+		writeError(w, http.StatusConflict, "ID_TAKEN", "Cette station existe deja")
 		return
 	}
 
@@ -59,20 +64,19 @@ func (a *App) createStation(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, station)
 }
 
-// updateStation gère la route PUT /stations/{id}
 func (a *App) updateStation(w http.ResponseWriter, r *http.Request) {
-	country := r.PathValue("country")
+	id := r.PathValue("id")
 
 	var station Station
 	err := json.NewDecoder(r.Body).Decode(&station)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "JSON invalide")
+		writeError(w, http.StatusBadRequest, "BAD_JSON", "JSON invalide")
 		return
 	}
 
-	station.Country = country
+	station.ID = id
 
-	exists := a.store.Has(country)
+	exists := a.store.Has(id)
 
 	a.store.Put(station)
 
@@ -81,4 +85,29 @@ func (a *App) updateStation(w http.ResponseWriter, r *http.Request) {
 	} else {
 		writeJSON(w, http.StatusCreated, station)
 	}
+}
+
+func (a *App) deleteStation(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	deleted := a.store.Delete(id)
+
+	if !deleted {
+		writeError(w, http.StatusNotFound, "NOT_FOUND", "Station introuvable")
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (a *App) listObservations(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	station, exists := a.store.Get(id)
+	if !exists {
+		writeError(w, http.StatusNotFound, "NOT_FOUND", "Station introuvable")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, station.Observation)
 }

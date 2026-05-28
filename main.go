@@ -100,13 +100,15 @@ func main() {
 
 	mux.HandleFunc("GET /stations", app.listStations)
 
-	mux.HandleFunc("GET /stations/{country}", app.getStation)
+	mux.HandleFunc("GET /stations/{id}", app.getStation)
 
 	mux.HandleFunc("POST /stations", app.createStation)
 
-	mux.HandleFunc("PUT /stations/{country}", app.updateStation)
+	mux.HandleFunc("PUT /stations/{id}", app.updateStation)
 
-	http.ListenAndServe(":8080", mux)
+	mux.HandleFunc("DELETE /stations/{id}", app.deleteStation)
+
+	mux.HandleFunc("GET /stations/{id}/observations", app.listObservations)
 
 	log.Println("Serveur démarré sur http://localhost:8080...")
 
