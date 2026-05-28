@@ -40,7 +40,6 @@ func (a *App) getStation(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, station)
 }
 
-// createStation gère la route POST /stations
 func (a *App) createStation(w http.ResponseWriter, r *http.Request) {
 	var station Station
 
@@ -50,7 +49,6 @@ func (a *App) createStation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	if a.store.Has(station.Country) {
 		writeError(w, http.StatusConflict, "Cette station existe deja")
 		return
@@ -59,4 +57,28 @@ func (a *App) createStation(w http.ResponseWriter, r *http.Request) {
 	a.store.Put(station)
 
 	writeJSON(w, http.StatusCreated, station)
+}
+
+// updateStation gère la route PUT /stations/{id}
+func (a *App) updateStation(w http.ResponseWriter, r *http.Request) {
+	country := r.PathValue("country")
+
+	var station Station
+	err := json.NewDecoder(r.Body).Decode(&station)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "JSON invalide")
+		return
+	}
+
+	station.Country = country
+
+	exists := a.store.Has(country)
+
+	a.store.Put(station)
+
+	if exists {
+		writeJSON(w, http.StatusOK, station)
+	} else {
+		writeJSON(w, http.StatusCreated, station)
+	}
 }
